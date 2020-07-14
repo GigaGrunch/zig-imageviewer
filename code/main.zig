@@ -41,10 +41,10 @@ pub fn main() !void
         null,
         width * height * bytesPerPixel,
         c.PROT_READ | c.PROT_WRITE,
-        c.MAP_ANONYMOUS,
-        0,
+        c.MAP_PRIVATE | c.MAP_ANONYMOUS,
+        -1,
         0
-    ) orelse return error.mmap;
+    );
 
     const texture = c.SDL_CreateTexture
     (
@@ -55,16 +55,16 @@ pub fn main() !void
     ) orelse return error.SDL_CreateTexture;
     defer c.SDL_DestroyTexture(texture);
 
-    // if (c.SDL_UpdateTexture
-    // (
-    //     texture,
-    //     null,
-    //     memory,
-    //     width * bytesPerPixel
-    // ) != 0)
-    // {
-    //     return error.SDL_UpdateTexture;
-    // }
+    if (c.SDL_UpdateTexture
+    (
+        texture,
+        null,
+        memory,
+        width * bytesPerPixel
+    ) != 0)
+    {
+        return error.SDL_UpdateTexture;
+    }
 
     var app_running = true;
     while (app_running)
