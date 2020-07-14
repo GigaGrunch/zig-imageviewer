@@ -3,6 +3,12 @@ const c = @cImport(@cInclude("SDL2/SDL.h"));
 
 pub fn main() !void
 {
+    if (c.SDL_Init(c.SDL_INIT_VIDEO) != 0)
+    {
+        return error.SDL_Init;
+    }
+    defer c.SDL_Quit();
+
     c.SDL_Log("Hello World!");
     defer c.SDL_Log("Bye bye!");
 
@@ -14,6 +20,22 @@ pub fn main() !void
         1024, 768,
         c.SDL_WINDOW_RESIZABLE
     ) orelse return error.SDL_CreateWindow;
+    defer c.SDL_DestroyWindow(window);
+
+    const renderer = c.SDL_CreateRenderer
+    (
+        window, -1, 0
+    ) orelse return error.SDL_CreateRenderer;
+    defer c.SDL_DestroyRenderer(renderer);
+
+    const texture = c.SDL_CreateTexture
+    (
+        renderer,
+        c.SDL_PIXELFORMAT_RGBA8888,
+        c.SDL_TEXTUREACCESS_STATIC,
+        1024, 768
+    ) orelse return error.SDL_CreateTexture;
+    defer c.SDL_DestroyTexture(texture);
 
     var app_running = true;
     while (app_running)
@@ -29,15 +51,14 @@ pub fn main() !void
             const window_event = event.window;
             if (window_event.event == c.SDL_WINDOWEVENT_CLOSE)
             {
-                c.SDL_Log("Quitting");
+                c.SDL_Log("Window event: SDL_WINDOWEVENT_CLOSE");
                 app_running = false;
             }
         }
+
+        if (c.SDL_RenderCopy(renderer, texture, null, null) != 0)
+        {
+            return error.SDL_RenderCopy;
+        }
     }
 }
-
-const SDLError = error
-{
-    SDL_CreateWindow,
-    SDL_WaitEvent
-};
