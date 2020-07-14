@@ -1,5 +1,9 @@
 const debug = @import("std").debug;
-const c = @cImport(@cInclude("SDL2/SDL.h"));
+const c = @cImport
+({
+    @cInclude("SDL2/SDL.h");
+    @cInclude("sys/mman.h");
+});
 
 pub fn main() !void
 {
@@ -28,14 +32,39 @@ pub fn main() !void
     ) orelse return error.SDL_CreateRenderer;
     defer c.SDL_DestroyRenderer(renderer);
 
+    const bytesPerPixel = 4;
+    const width = 1024;
+    const height = 768;
+
+    const memory = c.mmap
+    (
+        null,
+        width * height * bytesPerPixel,
+        c.PROT_READ | c.PROT_WRITE,
+        c.MAP_ANONYMOUS,
+        0,
+        0
+    ) orelse return error.mmap;
+
     const texture = c.SDL_CreateTexture
     (
         renderer,
         c.SDL_PIXELFORMAT_RGBA8888,
         c.SDL_TEXTUREACCESS_STATIC,
-        1024, 768
+        width, height
     ) orelse return error.SDL_CreateTexture;
     defer c.SDL_DestroyTexture(texture);
+
+    // if (c.SDL_UpdateTexture
+    // (
+    //     texture,
+    //     null,
+    //     memory,
+    //     width * bytesPerPixel
+    // ) != 0)
+    // {
+    //     return error.SDL_UpdateTexture;
+    // }
 
     var app_running = true;
     while (app_running)
