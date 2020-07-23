@@ -80,5 +80,7 @@ pub fn main() !void
         {
             return error.SDL_RenderCopy;
         }
+
+        c.SDL_RenderPresent(renderer);
     }
 }
