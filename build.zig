@@ -8,6 +8,10 @@ pub fn build(builder: *Builder) void
     exe.install();
 
     const run_command = exe.run();
+    if (builder.args) |args| {
+        run_command.addArgs(args);
+    }
+
     const run_step = builder.step("run", "Run the app");
     run_step.dependOn(&run_command.step);
 }
