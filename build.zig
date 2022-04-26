@@ -4,8 +4,8 @@ pub fn build(builder: *Builder) void
 {
     const exe = builder.addExecutable("imageviewer", "code/main.zig");
     exe.linkSystemLibrary("SDL2");
-    exe.linkSystemLibrary("c");
-    builder.installArtifact(exe);
+    exe.linkLibC();
+    exe.install();
 
     const run_command = exe.run();
     const run_step = builder.step("run", "Run the app");
