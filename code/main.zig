@@ -1,8 +1,5 @@
 const debug = @import("std").debug;
-const c = @cImport
-({
-    @cInclude("SDL2/SDL.h");
-});
+const c = @cImport(@cInclude("SDL.h"));
 
 pub fn main() !void
 {
